@@ -187,17 +187,6 @@ if st.button("✨ Predict Credit Risk! ✨", use_container_width=True):
         log_df.to_csv(LOG_PATH, mode="a", index=False, header=False)
 
     st.success("✅ Prediction logged successfully.")
-
-    # Business explanation using OpenAI
-    st.markdown("<hr style='margin-top:1.5rem;margin-bottom:1rem;border:0;border-top:2px dashed #43a047;'>", unsafe_allow_html=True)
-    st.markdown("<h3>📄 <span style='color:#1976d2;'>Business Explanation Report</span></h3>", unsafe_allow_html=True)
-    
-    # Top SHAP features
-    top_features = sorted(zip(df_input.columns, shap_values[0]), key=lambda x: abs(x[1]), reverse=True)[:5]
-    top_factors_text = "\n".join([f"- {f}: SHAP impact {round(v, 3)}" for f, v in top_features])
-    
-    # Construct input summary
-    input_summary = "\n".join([f"{k}: {v}" for k, v in input_dict.items()])
     
     # Business explanation using OpenAI
     st.markdown("<hr style='margin-top:1.5rem;margin-bottom:1rem;border:0;border-top:2px dashed #43a047;'>", unsafe_allow_html=True)
