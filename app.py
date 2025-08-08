@@ -235,19 +235,19 @@ if st.button("✨ Predict Credit Risk! ✨", use_container_width=True):
 
         # Reformat GPT-generated response
         def style_report_sections(text):
-            styled_lines = []
-            lines = text.strip().split("\n")
-            for line in lines:
-                line = line.strip()
-                if line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4."):
-                    styled_lines.append(f"<br><span style='color:#1976d2; font-size:1.15rem; font-weight:600;'>{line}</span>")
-                elif line.startswith("- "):
-                    styled_lines.append(f"<span style='color:#3f51b5;'>{line}</span>")
-                elif line == "":
-                    styled_lines.append("<br>")
-                else:
-                    styled_lines.append(f"<span>{line}</span>")
-            return "<br>".join(styled_lines)
+        styled_lines = []
+        lines = text.strip().split("\n")
+        for line in lines:
+            line = line.strip()
+            if line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4."):
+                styled_lines.append(f"### 🔹 {line}")
+            elif line.startswith("- "):
+                styled_lines.append(f"🔸 {line}")
+            elif line == "":
+                styled_lines.append("")
+            else:
+                styled_lines.append(line)
+        return "\n\n".join(styled_lines)
 
         formatted_report = style_report_sections(business_explanation)
         st.markdown(formatted_report, unsafe_allow_html=True)
