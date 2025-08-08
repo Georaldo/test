@@ -9,12 +9,12 @@ import matplotlib.pyplot as plt
 # Set up OpenAI API key from Streamlit secrets
 openai.api_key = st.secrets["openai_key"]
 
-# Load model and SHAP explainer
+# Load model
 with open("credit_risk_model.pkl", "rb") as f:
     model = pickle.load(f)
 
-with open("explainer.pkl", "rb") as f:
-    explainer = pickle.load(f)
+# Create SHAP explainer dynamically (no explainer.pkl)
+explainer = shap.Explainer(model)
 
 # App title
 st.title("📊 Credit Risk Predictor & Business Analysis Assistant")
@@ -49,14 +49,14 @@ if st.button("🚀 Predict Credit Risk"):
 
     # SHAP Explanation
     st.subheader("🧠 SHAP Explanation")
-    shap_values = explainer.shap_values(user_data)
+    shap_values = explainer(user_data)
 
     fig, ax = plt.subplots()
-    shap.summary_plot(shap_values, user_data, plot_type="bar", show=False)
+    shap.plots.bar(shap_values[0], show=False)
     st.pyplot(fig)
 
     # Feature importance
-    top_indices = np.argsort(np.abs(shap_values[0]))[::-1][:5]
+    top_indices = np.argsort(np.abs(shap_values.values[0]))[::-1][:5]
     top_features = [user_data.columns[i] for i in top_indices]
 
     # Ask question
@@ -66,20 +66,20 @@ if st.button("🚀 Predict Credit Risk"):
     if user_question:
         with st.spinner("Generating detailed business explanation..."):
             prompt = f"""
-            You are a senior financial analyst. Based on this credit risk prediction and SHAP explanation, provide a clear and structured business explanation in four sections:
-            
-            1. **Prediction Summary** – Briefly explain the predicted risk and probability.
-            2. **Key Drivers** – Describe the most influential features: {', '.join(top_features)}.
-            3. **Business Implications** – Explain what this risk level means for lending or credit policy.
-            4. **Recommendation** – Provide suggestions or actions the business should consider.
-            
-            Use the following data:
-            - Prediction: {"High risk" if prediction[0] == 1 else "Low risk"}
-            - Probability of default: {prediction_proba:.2%}
-            - Question: {user_question}
-            
-            Be clear, professional, and insightful.
-            """
+You are a senior financial analyst. Based on this credit risk prediction and SHAP explanation, provide a clear and structured business explanation in four sections:
+
+1. **Prediction Summary** – Briefly explain the predicted risk and probability.
+2. **Key Drivers** – Describe the most influential features: {', '.join(top_features)}.
+3. **Business Implications** – Explain what this risk level means for lending or credit policy.
+4. **Recommendation** – Provide suggestions or actions the business should consider.
+
+Use the following data:
+- Prediction: {"High risk" if prediction[0] == 1 else "Low risk"}
+- Probability of default: {prediction_proba:.2%}
+- Question: {user_question}
+
+Be clear, professional, and insightful.
+"""
 
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
