@@ -13,9 +13,6 @@ openai.api_key = st.secrets["openai_key"]
 with open("credit_risk_model.pkl", "rb") as f:
     model = pickle.load(f)
 
-with open("explainer.pkl", "rb") as f:
-    explainer = pickle.load(f)
-
 st.title("📊 Credit Risk Predictor & Business Explanation Tool")
 
 # User input
