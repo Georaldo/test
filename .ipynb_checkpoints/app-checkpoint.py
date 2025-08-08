@@ -239,15 +239,13 @@ if st.button("✨ Predict Credit Risk! ✨", use_container_width=True):
             lines = text.strip().split("\n")
             for line in lines:
                 line = line.strip()
-                if line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4."):
-                    styled_lines.append(f"### 🔹 {line}")
-                elif line.startswith("- "):
+                if line.startswith("- "):
                     styled_lines.append(f"🔸 {line}")
                 elif line == "":
                     styled_lines.append("")
                 else:
                     styled_lines.append(line)
-            return "\n\n".join(styled_lines)
+            return "\n".join(styled_lines)
     
         formatted_report = style_report_sections(business_explanation)
         st.markdown(formatted_report, unsafe_allow_html=True)
