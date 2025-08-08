@@ -187,9 +187,7 @@ if st.button("✨ Predict Credit Risk! ✨", use_container_width=True):
         log_df.to_csv(LOG_PATH, mode="a", index=False, header=False)
 
     st.success("✅ Prediction logged successfully.")
-
-    # Question
-    st.pyplot(plt.gcf())
+    
     # Business explanation using OpenAI
     st.markdown("<hr style='margin-top:1.5rem;margin-bottom:1rem;border:0;border-top:2px dashed #43a047;'>", unsafe_allow_html=True)
     st.markdown("<h3>📄 <span style='color:#1976d2;'>Business Explanation Report</span></h3>", unsafe_allow_html=True)
