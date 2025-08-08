@@ -209,7 +209,7 @@ if st.button("✨ Predict Credit Risk! ✨", use_container_width=True):
     3. Applicant Profile Insights
     4. Recommendations or Next Steps
     
-    Avoid technical terms like SHAP or model weights. Focus on explaining how applicant characteristics contribute to the credit risk using business language.
+    Avoid technical terms like SHAP or model weights. Focus on explaining how applicant characteristics contribute to the credit risk using business language in point form and start with -.
     
     **Prediction Summary:**
     - Risk Level: {risk_level}
