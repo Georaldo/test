@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 openai.api_key = st.secrets["openai_key"]
 
 # Load model and SHAP explainer
-with open("credit_model.pkl", "rb") as f:
+with open("credit_risk_model.pkl", "rb") as f:
     model = pickle.load(f)
 
 with open("explainer.pkl", "rb") as f:
