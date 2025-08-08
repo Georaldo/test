@@ -6,21 +6,20 @@ import pickle
 import openai
 import matplotlib.pyplot as plt
 
-# Set up OpenAI API key from Streamlit secrets
+# Set up OpenAI API key
 openai.api_key = st.secrets["openai_key"]
 
-# Load model
-with open("credit_risk_model.pkl", "rb") as f:
+# Load trained model and explainer
+with open("credit_model.pkl", "rb") as f:
     model = pickle.load(f)
 
-# Create SHAP explainer dynamically (no explainer.pkl)
-explainer = shap.Explainer(model)
+with open("explainer.pkl", "rb") as f:
+    explainer = pickle.load(f)
 
-# App title
-st.title("📊 Credit Risk Predictor & Business Analysis Assistant")
+st.title("📊 Credit Risk Predictor & Business Explanation Tool")
 
-# User input section
-st.header("👤 Enter Applicant Information")
+# User input
+st.header("Enter Applicant Information")
 age = st.slider("Age", 18, 75, 30)
 income = st.number_input("Monthly Income", value=3000)
 loan_amount = st.number_input("Loan Amount", value=10000)
@@ -28,6 +27,7 @@ credit_score = st.slider("Credit Score", 300, 850, 600)
 employment_years = st.slider("Years of Employment", 0, 40, 5)
 num_dependents = st.slider("Number of Dependents", 0, 10, 1)
 
+# Create dataframe from input
 user_data = pd.DataFrame([{
     "age": age,
     "income": income,
@@ -37,58 +37,52 @@ user_data = pd.DataFrame([{
     "num_dependents": num_dependents
 }])
 
-# Predict and explain
-if st.button("🚀 Predict Credit Risk"):
+# Predict & explain
+if st.button("✨ Predict Credit Risk! ✨"):
     prediction = model.predict(user_data)
     prediction_proba = model.predict_proba(user_data)[0][1]
-    risk_label = "High Risk 🔴" if prediction[0] == 1 else "Low Risk 🟢"
 
-    st.subheader("📈 Prediction Result")
-    st.markdown(f"**Risk Level:** {risk_label}")
+    risk_label = "High Risk 🔴" if prediction[0] == 1 else "Low Risk 🟢"
+    st.subheader("📈 Prediction Result:")
+    st.markdown(f"**Risk Assessment:** {risk_label}")
     st.markdown(f"**Probability of Default:** {prediction_proba:.2%}")
 
-    # SHAP Explanation
-    st.subheader("🧠 SHAP Explanation")
-    shap_values = explainer(user_data)
+    # SHAP explanation
+    shap_values = explainer.shap_values(user_data)
+    st.subheader("🧠 Model Explanation (SHAP)")
 
     fig, ax = plt.subplots()
-    shap.plots.bar(shap_values[0], show=False)
+    shap.summary_plot(shap_values, user_data, plot_type="bar", show=False)
     st.pyplot(fig)
 
-    # Feature importance
-    top_indices = np.argsort(np.abs(shap_values.values[0]))[::-1][:5]
+    # Top features
+    top_indices = np.argsort(np.abs(shap_values[0]))[::-1][:5]
     top_features = [user_data.columns[i] for i in top_indices]
 
-    # Ask question
-    st.subheader("💬 Ask a Business Question About This Prediction")
-    user_question = st.text_area("Example: Why is this applicant high risk? What actions can we take?")
+    # User question input
+    user_question = st.text_area("💬 Ask a business question about this prediction:")
 
     if user_question:
-        with st.spinner("Generating detailed business explanation..."):
+        with st.spinner("Generating business explanation..."):
             prompt = f"""
-You are a senior financial analyst. Based on this credit risk prediction and SHAP explanation, provide a clear and structured business explanation in four sections:
+You are a financial analyst. Based on the following prediction and SHAP explanation, answer the user's question in business terms:
 
-1. **Prediction Summary** – Briefly explain the predicted risk and probability.
-2. **Key Drivers** – Describe the most influential features: {', '.join(top_features)}.
-3. **Business Implications** – Explain what this risk level means for lending or credit policy.
-4. **Recommendation** – Provide suggestions or actions the business should consider.
-
-Use the following data:
-- Prediction: {"High risk" if prediction[0] == 1 else "Low risk"}
+- Prediction result: {"High risk" if prediction[0] == 1 else "Low risk"}
 - Probability of default: {prediction_proba:.2%}
+- Top influencing features: {', '.join(top_features)}
 - Question: {user_question}
 
-Be clear, professional, and insightful.
+Answer clearly in 100-150 words to help business decision-makers understand the result.
 """
 
             response = openai.ChatCompletion.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You are a helpful and insightful financial analyst."},
+                    {"role": "system", "content": "You are a helpful financial analyst."},
                     {"role": "user", "content": prompt}
                 ]
             )
-            answer = response['choices'][0]['message']['content']
+            explanation = response['choices'][0]['message']['content']
 
         st.subheader("📘 Business Explanation")
-        st.markdown(answer)
+        st.write(explanation)
