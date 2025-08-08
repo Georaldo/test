@@ -249,8 +249,8 @@ if st.button("✨ Predict Credit Risk! ✨", use_container_width=True):
                     styled_lines.append(line)
             return "\n\n".join(styled_lines)
     
-            formatted_report = style_report_sections(business_explanation)
-            st.markdown(formatted_report, unsafe_allow_html=True)
+        formatted_report = style_report_sections(business_explanation)
+        st.markdown(formatted_report, unsafe_allow_html=True)
     
     except Exception as e:
         st.error(f"Failed to generate business report: {e}")
